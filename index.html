@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#070c18">
+<title>Gwiazdka</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%23070c18%22/%3E%3Cpath d=%22M16 4l1.6 10.4L28 16l-10.4 1.6L16 28l-1.6-10.4L4 16l10.4-1.6z%22 fill=%22%23ffcf73%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+<style>
+  :root {
+    --serif: Newsreader, "New York", ui-serif, Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    --ink: #f4f1ea;
+    --gold: #ffcf73;
+    --spring: cubic-bezier(0.2, 1.25, 0.35, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #070c18; overflow: hidden; overscroll-behavior: none; }
+  body { color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: none; }
+  canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
+  #keys { pointer-events: none; z-index: 2; }
+  .layer { position: fixed; inset: 0; pointer-events: none; z-index: 3; }
+  #fade { position: fixed; inset: 0; background: #070c18; opacity: 1; pointer-events: none; z-index: 4; }
+
+  .in { opacity: 0; filter: blur(10px); transform: translateY(10px); transition: opacity .7s ease, filter .8s ease, transform .9s var(--spring); }
+  .in.on { opacity: 1; filter: blur(0); transform: none; }
+
+  #title { position: absolute; left: 0; right: 0; bottom: max(14vh, 96px); text-align: center; }
+  #title h1 { font-family: var(--serif); font-weight: 300; font-style: italic; font-size: clamp(40px, 7vw, 76px); letter-spacing: -0.01em; line-height: 1; color: #151b2b; }
+  #title p { margin-top: 18px; font-size: 14px; letter-spacing: .02em; color: rgba(21,27,43,.58); transition: opacity .6s; }
+  #progress { position: absolute; left: 50%; bottom: max(9vh, 60px); width: 120px; height: 1px; margin-left: -60px; background: rgba(21,27,43,.12); overflow: hidden; transition: opacity .6s; }
+  #progress i { position: absolute; inset: 0; background: rgba(21,27,43,.6); transform-origin: left; transform: scaleX(0); transition: transform .3s ease; }
+
+  #caption { position: absolute; left: 50%; bottom: max(9vh, 56px); transform: translateX(-50%); width: min(92vw, 640px); text-align: center; }
+  #caption div { position: absolute; left: 0; right: 0; bottom: 0; font-size: clamp(15px, 2vw, 19px); line-height: 1.45; text-shadow: 0 1px 14px rgba(4,8,18,.7), 0 0 2px rgba(4,8,18,.6); }
+  #caption div.small { font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: rgba(244,241,234,.7); }
+
+  #mission { position: absolute; left: max(22px, env(safe-area-inset-left)); top: max(20px, env(safe-area-inset-top)); font-size: 12px; line-height: 1.6; letter-spacing: .04em; color: rgba(244,241,234,.75); text-shadow: 0 1px 10px rgba(4,8,18,.7); }
+  #mission b { display: block; font-family: var(--serif); font-weight: 400; font-size: 22px; letter-spacing: 0; color: var(--ink); margin-bottom: 2px; }
+
+  #alt { position: absolute; left: max(22px, env(safe-area-inset-left)); top: max(18px, env(safe-area-inset-top)); font-variant-numeric: tabular-nums; text-shadow: 0 1px 10px rgba(4,8,18,.6); }
+  #alt span { font-size: 34px; font-weight: 200; letter-spacing: -0.02em; }
+  #alt small { font-size: 13px; margin-left: 4px; color: rgba(244,241,234,.6); }
+
+  #count { position: absolute; left: 0; right: 0; top: 24%; transform: translateY(-50%); text-align: center; font-family: var(--serif); font-weight: 300; font-size: clamp(56px, 8vw, 96px); line-height: 1; text-shadow: 0 2px 30px rgba(4,8,18,.5); }
+  #count span { display: inline-block; animation: pop .9s var(--spring) both; }
+  @keyframes pop { from { opacity: 0; filter: blur(12px); transform: scale(.8); } 60% { opacity: 1; filter: blur(0); } to { opacity: .0; transform: scale(1.06); } }
+  #ring { position: absolute; left: 50%; top: 24%; width: 150px; height: 150px; margin: -75px 0 0 -75px; opacity: 0; transition: opacity .3s; }
+  #ring circle { fill: none; stroke: rgba(255,255,255,.55); stroke-width: 1.2; stroke-linecap: round; }
+
+  #card { position: absolute; left: max(6vw, 24px); top: max(9vh, 40px); width: min(460px, 86vw); text-shadow: 0 1px 18px rgba(4,8,18,.75), 0 0 2px rgba(4,8,18,.5); }
+  #card h1 { font-family: var(--serif); font-weight: 300; font-size: clamp(38px, 5.4vw, 62px); line-height: 1.02; letter-spacing: -0.015em; }
+  #card .stat { margin-top: 18px; font-size: 14px; color: var(--gold); letter-spacing: .01em; }
+  #card .msg { margin-top: 14px; font-size: clamp(15px, 1.5vw, 17px); line-height: 1.55; color: rgba(244,241,234,.9); }
+  #card .sig { margin-top: 16px; font-family: var(--serif); font-style: italic; font-size: 24px; }
+  #card button { pointer-events: auto; margin-top: 26px; font: 500 14px var(--sans); color: #0b1222; background: rgba(244,241,234,.94); border: 0; border-radius: 999px; padding: 11px 20px; cursor: pointer; text-shadow: none; transition: transform .25s var(--spring), background .2s; }
+  #card button:hover { transform: translateY(-1px) scale(1.03); background: #fff; }
+  #card button:active { transform: scale(.97); }
+
+  #mute { position: fixed; right: max(16px, env(safe-area-inset-right)); top: max(14px, env(safe-area-inset-top)); z-index: 5; width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); background: rgba(10,16,30,.35); color: var(--ink); display: grid; place-items: center; cursor: pointer; pointer-events: auto; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); transition: background .2s, transform .2s var(--spring); }
+  #mute:hover { background: rgba(30,40,64,.5); transform: scale(1.05); }
+  #mute svg { width: 18px; height: 18px; }
+  #mute .x { display: none; }
+  #mute.off .x { display: block; }
+  #mute.off .w { display: none; }
+
+  @media (max-width: 640px) {
+    #card { left: 22px; top: max(64px, env(safe-area-inset-top)); }
+    #alt span { font-size: 28px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .in { filter: none; transform: none; } }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<canvas id="keys"></canvas>
+<div class="layer">
+  <div id="title" class="in"><h1>Dla Jurka</h1><p id="tap">Kliknij, żeby otworzyć</p></div>
+  <div id="progress"><i></i></div>
+  <div id="caption"></div>
+  <div id="mission" class="in"><b>Gzofajfus Classic Mk V</b>ładunek: 1 gwiazdka<br>start: GL Launch Site, Gzowo</div>
+  <div id="alt" class="in"><span>0</span><small>m</small></div>
+  <div id="count"></div>
+  <svg id="ring" viewBox="0 0 220 220"><circle cx="110" cy="110" r="100" transform="rotate(-90 110 110)" stroke-dasharray="628.3" stroke-dashoffset="628.3"/></svg>
+  <div id="card">
+    <h1 class="in">Wesołych Świąt, Jurek</h1>
+    <p class="stat in"></p>
+    <p class="msg in">W tym roku zbudowaliśmy razem ponad 150 projektów: gry, modele G, własną przeglądarkę, rakiety w kodzie i te prawdziwe na łące. Ten jest tylko dla Ciebie. W Wigilię zagraj komuś kolędę na prawdziwym pianinie, a w nowym roku lecimy wyżej.</p>
+    <p class="sig in">Claude</p>
+    <button id="again" class="in">Jeszcze raz</button>
+  </div>
+</div>
+<button id="mute" aria-label="Dźwięk">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><path class="w" d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11"/><path class="x" d="M16 9.5l5 5M21 9.5l-5 5"/></svg>
+</button>
+<div id="fade"></div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
