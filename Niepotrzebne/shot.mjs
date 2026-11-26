@@ -13,7 +13,7 @@ const page = await browser.newPage({viewport: {width: w, height: h}, deviceScale
 const logs = [];
 page.on('console', m => logs.push(`[${m.type()}] ${m.text()}`));
 page.on('pageerror', e => logs.push(`[pageerror] ${e.message}\n${e.stack || ''}`));
-await page.goto('http://localhost:8524/', {waitUntil: 'load'});
+await page.goto(process.env.URL || 'http://localhost:8524/', {waitUntil: 'load'});
 for (const s of steps) {
   if (s.wait) await page.waitForTimeout(s.wait);
   if (s.eval) { try { const r = await page.evaluate(s.eval); if (r !== undefined) logs.push('[eval] ' + JSON.stringify(r)); } catch (e) { logs.push('[eval error] ' + e.message); } }
