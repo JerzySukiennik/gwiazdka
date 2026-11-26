@@ -1,0 +1,10 @@
+{"sounds": [
+ {"name": "wind", "want": "a seamless loop of wind blowing over open land, 20 seconds", "sound": "wind/open", "loop": true, "dur": 20},
+ {"name": "ribbon", "want": "a satin ribbon pulled off a gift, a soft cloth swipe", "sound": "swipe/cloth"},
+ {"name": "paper", "want": "a page of a book being turned", "sound": "paper/page"},
+ {"name": "lid", "want": "a soft low thump", "sound": "thump/soft"},
+ {"name": "eject", "want": "a soft rounded pop", "sound": "pop/soft"},
+ {"name": "chute", "want": "a nylon flag shaken and flapping", "sound": "cloth/flag"},
+ {"name": "rise", "want": "a soft short whoosh", "sound": "whoosh/soft"},
+ {"name": "tick", "want": "a bright dry tick of a mechanical key", "sound": "tick/key"}
+]}
